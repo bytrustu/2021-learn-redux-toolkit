@@ -1,68 +1,88 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
+# Learn Redux Toolkit
 
-## Available Scripts
+Redux로 구현한 카운터 예제 입니다.  
+`Redux Toolkit` 을 이용해서 변경해 봅시다.
+```js
+const INCREMENT = 'INCREMENT'
+const DECREMENT = 'DECREMENT'
 
-In the project directory, you can run:
+function increment() {
+  return { type: INCREMENT }
+}
 
-### `npm start`
+function decrement() {
+  return { type: DECREMENT }
+}
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+function counter(state = 0, action) {
+  switch (action.type) {
+    case INCREMENT:
+      return state + 1
+    case DECREMENT:
+      return state - 1
+    default:
+      return state
+  }
+}
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+const store = Redux.createStore(counter)
+```
 
-### `npm test`
+---
+__createAction__  
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+`increment()` => `{ type: "INCREMENT" }` 와 같은 값을 나타낸다.  
+`increment.toString()` `increment.type` => `INCREMENT` 와 같은 값을 나타낸다.  
+액션 타입문자열을 받아 이 타입을 사용하는 액션 생성자 함수를 반환한다.
 
-### `npm run build`
+```js
+const increment = createAction('INCREMENT');
+const decrement = createAction('DECREMENT');
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+__createReducer__  
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+객체의 각 키는 redux의 액션 type문자열이며 값은 reducer 함수 이다.  
+액션 type 문자열을 키로 사용하므로 
+[ES6 object "computed 속성"](http://javascript.info/object#computed-properties) 을 사용하며 type문자열 변수로 키를 작성할 수 있다.  
+초기 상태값과 reducer함수에 대한 lookup테이블을 받아 이를 처리하는 reducer를 작성한다.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```js
+const counter = createReducer(0, {
+  [increment]: state => state + 1,
+  [decrement]: state => state - 1
+})
+```
 
-### `npm run eject`
+__configureStore__
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+`configureStore`함수는 여러 개의 인자 대신 이름이 지정된 하나의 object를 인자로 받으므로, reducer함수를 `reducer`라는 이름으로 전달해야 한다.  
+redux에서 제공하던 createStore와 같은 store를 생성하지만 인자로 객체를 사용하고 Redux DevTools Extension을 자동으로 설정합니다.
+```js
+const store = configureStore({
+  reducer: counter
+})
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+__createSlice__
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+`createSlice` 함수는 객체에 reducer함수들을 제공할 수 있고  
+이를 기반으로 애션 타입문자열과 액션 생성자 함수를 자동으로 생성한다.  
+생성된 reducer함수를 `reducer`라는 필드를 포함하는 "slice"객체와 `actions`라는 객체 내부에서 생성된 액션 함수를 반환한다.  
+reducer이름과 함수가 포함된 초기 상태와 lookup테이블을 받아 액션 생성자 함수, 액션 유형 문자열 및 리듀서 함수를 자동으로 생성한다.  
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+ES6 구문으로 작성한 redux 코드를 `createSlice` 함수를 사용하면 다음과 같이 작성할 수 있다.  
+```js
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: 0,
+  reducers: {
+    increment: state => state + 1,
+    decrement: state => state - 1
+  }
+})
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+const store = configureStore({
+  reducer: counterSlice.reducer
+})
+```

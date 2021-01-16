@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createStore } from 'redux';
-import { configureStore, createAction, createReducer } from '@reduxjs/toolkit';
+import { configureStore, createAction, createReducer, createSlice } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
 function App() {
@@ -16,8 +16,8 @@ function App() {
   //   return { type: DECREMENT };
   // }
 
-  const increment = createAction('INCREMENT');
-  const decrement = createAction('DECREMENT');
+  // const increment = createAction('INCREMENT');
+  // const decrement = createAction('DECREMENT');
 
   // function counter(state = 0, action) {
   //   switch (action.type) {
@@ -30,21 +30,32 @@ function App() {
   //   }
   // }
 
-  const counter = createReducer(0, {
-    [increment]: state => state + 1,
-    [decrement]: state => state - 1,
-  })
+  // const counter = createReducer(0, {
+  //   [increment]: state => state + 1,
+  //   [decrement]: state => state - 1,
+  // })
+
+  const counterSlice = createSlice({
+    name: 'counter',
+    initialState:0,
+    reducers: {
+      increment: state => state + 1,
+      decrement: state => state - 1,
+    }
+  });
+
+  const { actions, reducer } = counterSlice;
 
   const store = configureStore({
-    reducer: counter,
+    reducer
   });
 
   const onClickIncrementHandle = () => {
-    store.dispatch(increment());
+    store.dispatch(actions.increment());
   };
 
   const onClickDecrementHandle = () => {
-    store.dispatch(decrement());
+    store.dispatch(actions.decrement());
   };
 
 
